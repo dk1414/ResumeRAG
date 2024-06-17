@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const showLoading = () => {
         const loadingElement = document.createElement('p');
         loadingElement.id = 'loading';
-        loadingElement.innerHTML = '<strong>Bot:</strong> <em>Generating Response...</em>';
+        loadingElement.innerHTML = '<strong>Bot:</strong> <em>Loading...</em>';
         output.appendChild(loadingElement);
         output.scrollTop = output.scrollHeight; // Auto scroll to the bottom
     };
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         addMessage(question, 'You'); // Show user's question immediately
         showLoading(); // Show progress indicator
 
-        const url = 'https://z1zrd9h2f2.execute-api.us-east-1.amazonaws.com/prod/Ask' //don't be rude...
+        const url = 'https://z1zrd9h2f2.execute-api.us-east-1.amazonaws.com/prod/Ask' 
         const data = { question: question };
 
         fetch(url, {
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             hideLoading(); // Hide progress indicator
-            const answer = data.body;
+            let answer = data.body.replace(/\\n/g, ' ').trim(); // Replace literal "\n" with space and trim spaces
             addMessage(answer, 'Bot');
             inputField.value = ''; // Clear input field
         })
@@ -62,3 +62,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+

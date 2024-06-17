@@ -1,20 +1,40 @@
-// script.js
-
 document.addEventListener('DOMContentLoaded', function() {
     const inputField = document.getElementById('input');
     const output = document.getElementById('output');
     const submitBtn = document.getElementById('submit-btn');
 
+    const addMessage = (message, sender) => {
+        const messageElement = document.createElement('p');
+        messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+        output.appendChild(messageElement);
+        output.scrollTop = output.scrollHeight; // Auto scroll to the bottom
+    };
+
+    const showLoading = () => {
+        const loadingElement = document.createElement('p');
+        loadingElement.id = 'loading';
+        loadingElement.innerHTML = '<strong>Bot:</strong> <em>Generating Response...</em>';
+        output.appendChild(loadingElement);
+        output.scrollTop = output.scrollHeight; // Auto scroll to the bottom
+    };
+
+    const hideLoading = () => {
+        const loadingElement = document.getElementById('loading');
+        if (loadingElement) {
+            output.removeChild(loadingElement);
+        }
+    };
+
     submitBtn.addEventListener('click', function() {
         const question = inputField.value.trim();
         if (question === '') return;
 
-        const url = 'https://z1zrd9h2f2.execute-api.us-east-1.amazonaws.com/prod/Ask'; 
-        const data = {
-            question: question
-        };
+        addMessage(question, 'You'); // Show user's question immediately
+        showLoading(); // Show progress indicator
 
-        // Make a POST request to your API
+        const url = 'https://z1zrd9h2f2.execute-api.us-east-1.amazonaws.com/prod/Ask' //don't be rude...
+        const data = { question: question };
+
         fetch(url, {
             method: 'POST',
             body: JSON.stringify(data),
@@ -24,15 +44,21 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            // Handle the response from your API
-            const answer = data.body;  // Adjust according to your API response structure
-            output.innerHTML += `<p><strong>You:</strong> ${question}</p>`;
-            output.innerHTML += `<p><strong>Bot:</strong> ${answer}</p>`;
-            inputField.value = '';  // Clear input field
+            hideLoading(); // Hide progress indicator
+            const answer = data.body;
+            addMessage(answer, 'Bot');
+            inputField.value = ''; // Clear input field
         })
         .catch(error => {
             console.error('Error:', error);
-            output.innerHTML += `<p><strong>Error:</strong> Failed to fetch response from server.</p>`;
+            hideLoading(); // Hide progress indicator
+            addMessage('Unable to Generate Response at this Time.', 'Error');
         });
+    });
+
+    inputField.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            submitBtn.click();
+        }
     });
 });
